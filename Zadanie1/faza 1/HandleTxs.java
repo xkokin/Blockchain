@@ -1,13 +1,14 @@
-// Meno študenta:
+// Meno študenta: Hlib Kokin
+// ID: 117991
 public class HandleTxs {
-
+    private actUTXOPool = null;
     /**
      * Vytvorí verejný ledger (účtovnú knihu), ktorého aktuálny UTXOPool (zbierka nevyčerpaných
      * transakčných výstupov) je {@code utxoPool}. Malo by to vytvoriť bezpečnú kópiu
      * utxoPool pomocou konštruktora UTXOPool (UTXOPool uPool).
      */
     public HandleTxs(UTXOPool utxoPool) {
-        // IMPLEMENTOVAŤ
+        this.actUTXOPool = new UTXOPool(utxoPool);
     }
 
     /**
@@ -15,8 +16,10 @@ public class HandleTxs {
      * Ak nenájde žiadny aktuálny UTXO pool, tak vráti prázdny (nie nulový) objekt {@code UTXOPool}.
      */
     public UTXOPool UTXOPoolGet() {
-        // IMPLEMENTOVAŤ
-        return false;
+        if (this.actUTXOPool != null)
+            return this.actUTXOPull;
+        else
+            return this.actUTXOPool = new UTXOPool();
     }
 
     /**
@@ -29,8 +32,34 @@ public class HandleTxs {
      *     výstupných hodnôt; a false inak.
      */
     public boolean txIsValid(Transaction tx) {
-        // IMPLEMENTOVAŤ
-        return false;
+        if (this.actUTXOPool == null) return false;
+
+        // (1)
+        for (UTXO utxo : this.actUTXOPool){
+            if (!tx.getOutputs().contains(getTxOutput(utxo))) return false;
+        }
+        // (2)
+        for (Transaction.Input i : tx.getInputs()){
+            if (i.signature != ) return false;
+        }
+        // (3)
+        List<UTXO>keys = new ArrayList<>(actUTXOPool.keySet());
+        for (int i = 0; i < keys.size(); i++) {
+            for (int j = i + 1; j < keys.size(); j++) {
+                if (keys.get(i).equals(keys.get(j)))
+                    if (keys.get(i).hashCode() == keys.get(j).hashCode()) return false;
+            }
+        }
+        // (4)
+        int sumO = 0;
+        for (Transaction.Output o : tx.getOutputs()){
+            sumO += o.value;
+            if (o.value < 0) return false;
+        }
+        // (5)
+        if (tx.numInputs() < sumO) return false;
+
+        return true;
     }
 
     /**
@@ -39,7 +68,10 @@ public class HandleTxs {
      * platných prijatých transakcií a aktualizuje aktuálny UTXO pool podľa potreby.
      */
     public Transaction[] handler(Transaction[] possibleTxs) {
-        // IMPLEMENTOVAŤ
-        return false;
+        Transaction res[];
+        for (Transaction t : possibleTxs){
+            if (txIsValid(t)) res.add(t);
+        }
+        return res;
     }
 }
