@@ -35,12 +35,19 @@ public class HandleTxs {
         if (this.actUTXOPool == null) return false;
 
         // (1)
+        int cnt = 0;
         for (UTXO utxo : this.actUTXOPool){
+            cnt++;
             if (!tx.getOutputs().contains(getTxOutput(utxo))) return false;
         }
+        if (tx.numOutputs() > cnt) return false;
         // (2)
+        cnt = 0;
+
         for (Transaction.Input i : tx.getInputs()){
-            if (i.signature != ) return false;
+            byte[] message = tx.getDataToSign(cnt);
+            if (!rsa.RSAKey.veifySignature(message, i.signature)) return false;
+            cnt++;
         }
         // (3)
         List<UTXO>keys = new ArrayList<>(actUTXOPool.keySet());

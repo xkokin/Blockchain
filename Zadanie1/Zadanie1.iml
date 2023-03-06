@@ -8,5 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="rsa" level="project" />
+    <orderEntry type="library" name="rsa" level="project" />
+    <orderEntry type="library" name="rsa (2)" level="project" />
   </component>
 </module>
