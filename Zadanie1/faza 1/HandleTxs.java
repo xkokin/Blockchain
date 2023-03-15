@@ -57,7 +57,15 @@ public class HandleTxs {
             if (o.value < 0) return false;
         }
         // (5)
-        if (tx.numInputs() < sumO) return false;
+        int sumi = 0;
+        for (Transaction.Input i : tx.getInputs()) {
+            UTXO cur = new UTXO(i.prevTxHash, i.outputIndex);
+            for (UTXO u : actUTXOPool) {
+                if (u.equals(cur)) sumi += actUTXOPool.get(u).value;
+            }
+        }
+
+        if (sumi < sumO) return false;
 
         return true;
     }
