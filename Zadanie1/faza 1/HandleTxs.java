@@ -42,12 +42,10 @@ public class HandleTxs {
         }
         if (tx.numOutputs() > cnt) return false;
         // (2)
-        cnt = 0;
 
         for (Transaction.Input i : tx.getInputs()){
             byte[] message = tx.getDataToSign(cnt);
             if (!rsa.RSAKey.veifySignature(message, i.signature)) return false;
-            cnt++;
         }
         // (3)
         List<UTXO>keys = new ArrayList<>(actUTXOPool.keySet());
