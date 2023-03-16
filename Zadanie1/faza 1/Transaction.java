@@ -160,7 +160,7 @@ public class Transaction {
         return tx;
     }
 
-    public void finalize() {
+    public void txFinalize() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(getTx());

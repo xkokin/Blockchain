@@ -1,7 +1,10 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+
 // Meno študenta: Hlib Kokin
 // ID: 117991
 public class HandleTxs {
-    private actUTXOPool = null;
+    private UTXOPool actUTXOPool = null;
     /**
      * Vytvorí verejný ledger (účtovnú knihu), ktorého aktuálny UTXOPool (zbierka nevyčerpaných
      * transakčných výstupov) je {@code utxoPool}. Malo by to vytvoriť bezpečnú kópiu
@@ -17,7 +20,7 @@ public class HandleTxs {
      */
     public UTXOPool UTXOPoolGet() {
         if (this.actUTXOPool != null)
-            return this.actUTXOPull;
+            return this.actUTXOPool;
         else
             return this.actUTXOPool = new UTXOPool();
     }
@@ -32,43 +35,59 @@ public class HandleTxs {
      *     výstupných hodnôt; a false inak.
      */
     public boolean txIsValid(Transaction tx) {
-        if (this.actUTXOPool == null) return false;
+        ArrayList<UTXO> keys = new ArrayList<>(actUTXOPool.getAllUTXO());
+        ArrayList<Transaction.Input> inputs = new ArrayList<>(tx.getInputs());
+         if (this.actUTXOPool == null) return false;
 
         // (1)
         int cnt = 0;
-        for (UTXO utxo : this.actUTXOPool){
+        //ArrayList<UTXO> outInputs = new ArrayList<>();
+        HashMap<Integer, UTXO> outInputs = new HashMap<>();
+        for(Transaction.Input i: inputs){
+            outInputs.put(cnt, new UTXO(i.prevTxHash, i.outputIndex));
             cnt++;
-            if (!tx.getOutputs().contains(getTxOutput(utxo))) return false;
         }
-        if (tx.numOutputs() > cnt) return false;
-        // (2)
+        for (UTXO utxo : outInputs.values()){
+            if (keys.contains(utxo)) cnt--;
+        }
 
-        for (Transaction.Input i : tx.getInputs()){
-            byte[] message = tx.getDataToSign(cnt);
-            if (!rsa.RSAKey.veifySignature(message, i.signature)) return false;
+        if (cnt != 0) return false;
+        System.out.println("Every Input is UTXO");
+        // (2)
+        cnt = 0;
+        for (Transaction.Input i : inputs){
+            UTXO curUtxo = outInputs.get(cnt);
+            Transaction.Output curOutput = actUTXOPool.getTxOutput(curUtxo);
+            if (!curOutput.address.verifySignature(tx.getDataToSign(cnt), i.signature)) return false;
+
+            cnt++;
         }
+        System.out.println("Every sign is valid");
         // (3)
-        List<UTXO>keys = new ArrayList<>(actUTXOPool.keySet());
+
         for (int i = 0; i < keys.size(); i++) {
             for (int j = i + 1; j < keys.size(); j++) {
                 if (keys.get(i).equals(keys.get(j)))
                     if (keys.get(i).hashCode() == keys.get(j).hashCode()) return false;
             }
         }
+        System.out.println("There are no double requested UTXOs");
         // (4)
         int sumO = 0;
         for (Transaction.Output o : tx.getOutputs()){
             sumO += o.value;
             if (o.value < 0) return false;
         }
+        System.out.println("SumO is not equal 0");
         // (5)
         int sumi = 0;
-        for (Transaction.Input i : tx.getInputs()) {
+        for (Transaction.Input i : inputs) {
             UTXO cur = new UTXO(i.prevTxHash, i.outputIndex);
-            for (UTXO u : actUTXOPool) {
-                if (u.equals(cur)) sumi += actUTXOPool.get(u).value;
+            for (UTXO u : keys) {
+                if (u.equals(cur)) sumi += actUTXOPool.getTxOutput(u).value;
             }
         }
+        System.out.println("Sumi ="+ sumi + "; Sumo =" + sumO);
 
         if (sumi < sumO) return false;
 
@@ -81,9 +100,16 @@ public class HandleTxs {
      * platných prijatých transakcií a aktualizuje aktuálny UTXO pool podľa potreby.
      */
     public Transaction[] handler(Transaction[] possibleTxs) {
-        Transaction res[];
+        ArrayList<Transaction> valids = new ArrayList<>();
         for (Transaction t : possibleTxs){
-            if (txIsValid(t)) res.add(t);
+            if (txIsValid(t)) valids.add(t);
+        }
+        int length = valids.size();
+        Transaction[] res = new Transaction[length];
+        int cnt = 0;
+        for (Transaction t : valids){
+            res[cnt] = t;
+            cnt++;
         }
         return res;
     }
