@@ -1,7 +1,3 @@
-/*
- * Main pre zadanie 1 na predmete DMBLOCK - faza 1
- */
-
 import java.math.BigInteger;
 import java.security.*;
 

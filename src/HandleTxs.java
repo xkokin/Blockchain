@@ -52,7 +52,7 @@ public class HandleTxs {
         }
 
         if (cnt != 0) return false;
-        System.out.println("Every Input is UTXO");
+        //System.out.println("Every Input is UTXO");
         // (2)
         cnt = 0;
         for (Transaction.Input i : inputs){
@@ -62,7 +62,7 @@ public class HandleTxs {
 
             cnt++;
         }
-        System.out.println("Every sign is valid");
+        //System.out.println("Every sign is valid");
         // (3)
 
         for (int i = 0; i < keys.size(); i++) {
@@ -71,14 +71,14 @@ public class HandleTxs {
                     if (keys.get(i).hashCode() == keys.get(j).hashCode()) return false;
             }
         }
-        System.out.println("There are no double requested UTXOs");
+        //System.out.println("There are no double requested UTXOs");
         // (4)
         int sumO = 0;
         for (Transaction.Output o : tx.getOutputs()){
             sumO += o.value;
             if (o.value < 0) return false;
         }
-        System.out.println("SumO is not equal 0");
+        //System.out.println("SumO is not equal 0");
         // (5)
         int sumi = 0;
         for (Transaction.Input i : inputs) {
@@ -87,7 +87,7 @@ public class HandleTxs {
                 if (u.equals(cur)) sumi += actUTXOPool.getTxOutput(u).value;
             }
         }
-        System.out.println("Sumi ="+ sumi + "; Sumo =" + sumO);
+        //System.out.println("Sumi ="+ sumi + "; Sumo =" + sumO);
 
         if (sumi < sumO) return false;
 
