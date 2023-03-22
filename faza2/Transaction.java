@@ -1,4 +1,4 @@
-package faza2;
+
 
 final public class Transaction {
     final int id;

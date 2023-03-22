@@ -1,4 +1,4 @@
-package faza2;// Príklad simulácie. Tento test spúšťa uzly na náhodnom grafe.
+// Príklad simulácie. Tento test spúšťa uzly na náhodnom grafe.
 // Na konci vypíše ID transakcií, na ktorých bol podľa uzlov
 // dosiahnutý konsenzus. Túto simuláciu môžete použiť na
 // otestovanie svojich uzlov. Budete chcieť vyskúšať vytvoriť nejaké podvodné uzly a
@@ -120,21 +120,30 @@ public class Simulation {
       }
 
       // vypíš výsledky
-      int allSize = 0;
+      double allSize = 0;
       Set<Transaction> intersection = null;
       for (int i = 0; i < numNodes; i++) {
          Set<Transaction> transactions = nodes[i].followersSend();
-         allSize += transactions.size();
+
          if (i == 0) intersection = transactions;
-         else intersection.retainAll(transactions);
+         if (intersection.containsAll(transactions) || intersection.isEmpty()) allSize++;
+//         else {
+//            System.out.println("Transaction ids that Node " + i + " believes consensus on:");
+//            for (Transaction tx : transactions)
+//               System.out.println(tx.id);
+//            System.out.println();
+//            System.out.println();
+//         }
+         intersection = transactions;
+         System.out.println("Transaction ids that Node " + i + " sits with previous transactions: " + intersection.containsAll(transactions));
          System.out.println("Transaction ids that Node " + i + " believes consensus on:");
          for (Transaction tx : transactions)
             System.out.println(tx.id);
          System.out.println();
          System.out.println();
       }
-      allSize /= numNodes;
-      System.out.println("Percentage = " + ((double) intersection.size() / (allSize) * 100));
+
+      System.out.println("allSize = "+ allSize + " Percentage = " + (allSize/numNodes)*100);
 
 
    }

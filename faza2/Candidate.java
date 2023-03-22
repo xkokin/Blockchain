@@ -1,4 +1,3 @@
-package faza2;
 
 public class Candidate {
 	Transaction tx;
